@@ -28,6 +28,7 @@ import javax.swing.event.ListDataListener;
 public class JRandom extends javax.swing.JFrame {
     private List<Grupo> grupos;
     private List<Grupo> gruposAleatorio;
+    private boolean estado;
 
     /*Contador utilizado para generar los numeros de los grupos*/
     private int contador;
@@ -54,8 +55,8 @@ public class JRandom extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         listaGrafica = new javax.swing.JList();
         btnGenerarOrden = new javax.swing.JButton();
-        txtVeces = new javax.swing.JSpinner();
-        lblVeces = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        txtPausa = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -86,10 +87,9 @@ public class JRandom extends javax.swing.JFrame {
             }
         });
 
-        lblVeces.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        lblVeces.setForeground(new java.awt.Color(204, 0, 0));
-        lblVeces.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblVeces.setText("0");
+        jLabel1.setText("Pausa en milis:");
+
+        txtPausa.setModel(new javax.swing.SpinnerNumberModel(1, 1, 1000, 5));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -97,16 +97,15 @@ public class JRandom extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtVeces, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblVeces, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnGenerarOrden, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE))
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtPausa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnGenerarOrden, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, 0, 0, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtNombreGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtNombreGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnAgregar)))
                 .addContainerGap())
@@ -122,10 +121,11 @@ public class JRandom extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnGenerarOrden)
-                    .addComponent(txtVeces, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblVeces, javax.swing.GroupLayout.DEFAULT_SIZE, 14, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(jLabel1)
+                    .addComponent(txtPausa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnGenerarOrden)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -136,25 +136,28 @@ public class JRandom extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnGenerarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarOrdenActionPerformed
-        final int veces = Integer.parseInt(txtVeces.getValue().toString());
+        if(btnGenerarOrden.getText().equalsIgnoreCase("Generar orden")){
+            btnGenerarOrden.setText("Detener generación");
+            estado = true;
+            new Thread(new Runnable() {
 
-        new Thread(new Runnable() {
-
-            public void run() {
-                lblVeces.setText("0");
-                int cont = 0;
-                while(cont < veces){
-                    try {
-                        generarOrden();
-                        Thread.sleep(200);
-                        cont++;
-                        lblVeces.setText(Integer.toString(cont));
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(JRandom.class.getName()).log(Level.SEVERE, null, ex);
+                public void run() {
+                    while(estado){
+                        try {
+                            generarOrden();
+                            Thread.sleep(Integer.parseInt(txtPausa.getValue().toString()));
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(JRandom.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
-            }
-        }).start();
+            }).start();
+        }else{
+            estado = false;
+            btnGenerarOrden.setText("Generar orden");
+        }
+
+        
     }//GEN-LAST:event_btnGenerarOrdenActionPerformed
 
     private void txtNombreGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreGrupoActionPerformed
@@ -189,11 +192,11 @@ public class JRandom extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;
     private javax.swing.JButton btnGenerarOrden;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel lblVeces;
     private javax.swing.JList listaGrafica;
     private javax.swing.JTextField txtNombreGrupo;
-    private javax.swing.JSpinner txtVeces;
+    private javax.swing.JSpinner txtPausa;
     // End of variables declaration//GEN-END:variables
 
     private void listarGrupos(final List<Grupo> lista) {
