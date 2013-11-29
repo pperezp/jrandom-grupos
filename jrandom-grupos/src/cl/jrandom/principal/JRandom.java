@@ -16,6 +16,8 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
@@ -52,6 +54,8 @@ public class JRandom extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         listaGrafica = new javax.swing.JList();
         btnGenerarOrden = new javax.swing.JButton();
+        txtVeces = new javax.swing.JSpinner();
+        lblVeces = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -82,16 +86,26 @@ public class JRandom extends javax.swing.JFrame {
             }
         });
 
+        lblVeces.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        lblVeces.setForeground(new java.awt.Color(204, 0, 0));
+        lblVeces.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblVeces.setText("0");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnGenerarOrden, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, 0, 0, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(txtVeces, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblVeces, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnGenerarOrden, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, 0, 0, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(txtNombreGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnAgregar)))
@@ -107,8 +121,11 @@ public class JRandom extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnGenerarOrden)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnGenerarOrden)
+                    .addComponent(txtVeces, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblVeces, javax.swing.GroupLayout.DEFAULT_SIZE, 14, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
@@ -119,57 +136,25 @@ public class JRandom extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnGenerarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarOrdenActionPerformed
-        /*Cada vez que presiono el botón
-         debo crear una nueva lista de grupos, la que
-         se va a encargar de almacenar los grupos
-         pero de forma aleatoria*/
-        gruposAleatorio = new ArrayList<Grupo>();
+        final int veces = Integer.parseInt(txtVeces.getValue().toString());
 
-        /*Clase que me permite generar numeros aleatorios*/
-        Random random = new Random();
+        new Thread(new Runnable() {
 
-
-        /*Contador que me permite ir recorriendo
-         todos los grupos*/
-        int cont = 0;
-
-        /*Variable que almacenara el numero aleatorio generado*/
-        int numeroAleatorio;
-
-        /*Cantidad de grupos*/
-        int cantidadDeGrupos = grupos.size();
-
-
-        /*ciclo para recorrer todos los grupos*/
-        while(cont < cantidadDeGrupos){
-            do{
-                /*Genero un numero aleatorio y le sumo 1.
-                 Esto es para que no comience de cero, si no de 1*/
-                numeroAleatorio = random.nextInt(cantidadDeGrupos) + 1;
-
-                /*Si el número generado ya esta en la lista de
-                 grupos aleatorios, volverá a generar otro número*/
-            }while(estaEnGrupoAleatorio(numeroAleatorio));
-
-            /*En este punto, se ha generado un numero que no esta
-             en la lista, por ende, debo rescatar a ese grupo*/
-            Grupo grupo = getGrupo(numeroAleatorio);
-
-
-            /*y luego lo agrtego a la otra lista. La lista de
-             grupos aleatorios*/
-            agregarGrupoAListaAleatoria(grupo);
-
-
-            /*Aumento el contador para seguir recorriendo
-             los grupos*/
-            cont++;
-        }
-
-
-        /*Una vez afuera del ciclo, o sea, una vez terminado
-         listo los grupos, pero ahora los grupos de forma aleatoria*/
-        listarGrupos(gruposAleatorio);
+            public void run() {
+                lblVeces.setText("0");
+                int cont = 0;
+                while(cont < veces){
+                    try {
+                        generarOrden();
+                        Thread.sleep(200);
+                        cont++;
+                        lblVeces.setText(Integer.toString(cont));
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(JRandom.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }).start();
     }//GEN-LAST:event_btnGenerarOrdenActionPerformed
 
     private void txtNombreGrupoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreGrupoActionPerformed
@@ -205,8 +190,10 @@ public class JRandom extends javax.swing.JFrame {
     private javax.swing.JButton btnAgregar;
     private javax.swing.JButton btnGenerarOrden;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblVeces;
     private javax.swing.JList listaGrafica;
     private javax.swing.JTextField txtNombreGrupo;
+    private javax.swing.JSpinner txtVeces;
     // End of variables declaration//GEN-END:variables
 
     private void listarGrupos(final List<Grupo> lista) {
@@ -293,6 +280,60 @@ public class JRandom extends javax.swing.JFrame {
 
         txtNombreGrupo.setText("");
         txtNombreGrupo.requestFocus();
+    }
+
+    private void generarOrden() {
+        /*Cada vez que presiono el botón
+         debo crear una nueva lista de grupos, la que
+         se va a encargar de almacenar los grupos
+         pero de forma aleatoria*/
+        gruposAleatorio = new ArrayList<Grupo>();
+
+        /*Clase que me permite generar numeros aleatorios*/
+        Random random = new Random();
+
+
+        /*Contador que me permite ir recorriendo
+         todos los grupos*/
+        int cont = 0;
+
+        /*Variable que almacenara el numero aleatorio generado*/
+        int numeroAleatorio;
+
+        /*Cantidad de grupos*/
+        int cantidadDeGrupos = grupos.size();
+
+
+        /*ciclo para recorrer todos los grupos*/
+        while(cont < cantidadDeGrupos){
+            do{
+                /*Genero un numero aleatorio y le sumo 1.
+                 Esto es para que no comience de cero, si no de 1*/
+                numeroAleatorio = random.nextInt(cantidadDeGrupos) + 1;
+
+                /*Si el número generado ya esta en la lista de
+                 grupos aleatorios, volverá a generar otro número*/
+            }while(estaEnGrupoAleatorio(numeroAleatorio));
+
+            /*En este punto, se ha generado un numero que no esta
+             en la lista, por ende, debo rescatar a ese grupo*/
+            Grupo grupo = getGrupo(numeroAleatorio);
+
+
+            /*y luego lo agrtego a la otra lista. La lista de
+             grupos aleatorios*/
+            agregarGrupoAListaAleatoria(grupo);
+
+
+            /*Aumento el contador para seguir recorriendo
+             los grupos*/
+            cont++;
+        }
+
+
+        /*Una vez afuera del ciclo, o sea, una vez terminado
+         listo los grupos, pero ahora los grupos de forma aleatoria*/
+        listarGrupos(gruposAleatorio);
     }
 
 }
