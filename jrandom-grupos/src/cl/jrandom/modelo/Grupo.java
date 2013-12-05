@@ -40,6 +40,6 @@ public class Grupo {
      1) Grupo 1*/
     @Override
     public String toString(){
-        return this.numero + ") " +nombre;
+        return nombre;
     }
 }
