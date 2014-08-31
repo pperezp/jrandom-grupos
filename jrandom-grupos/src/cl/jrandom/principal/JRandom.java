@@ -15,12 +15,16 @@ import cl.jrandom.modelo.Grupo;
 import cl.jrandom.modelo.cellRender.CRGrupo;
 import cl.jrandom.modelo.listModel.LMGrupo;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -64,6 +68,9 @@ public class JRandom extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         txtPausa = new javax.swing.JSpinner();
         btnLimpiarLista = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JRandom Grupos");
@@ -88,7 +95,6 @@ public class JRandom extends javax.swing.JFrame {
         });
 
         listaGrafica.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        listaGrafica.setLayoutOrientation(javax.swing.JList.VERTICAL_WRAP);
         listaGrafica.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 listaGraficaMouseReleased(evt);
@@ -116,6 +122,20 @@ public class JRandom extends javax.swing.JFrame {
                 btnLimpiarListaActionPerformed(evt);
             }
         });
+
+        jMenu1.setText("Archivo");
+
+        jMenuItem1.setText("Abrir");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -145,7 +165,7 @@ public class JRandom extends javax.swing.JFrame {
                     .addComponent(txtNombreGrupo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAgregar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -161,7 +181,7 @@ public class JRandom extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
-        guardarGrupo();
+        guardarGrupo(txtNombreGrupo.getText());
     }//GEN-LAST:event_btnAgregarActionPerformed
 
     private void btnGenerarOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarOrdenActionPerformed
@@ -197,16 +217,12 @@ public class JRandom extends javax.swing.JFrame {
 
     private void txtNombreGrupoKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNombreGrupoKeyReleased
         if(evt.getKeyCode() == KeyEvent.VK_ENTER){
-            guardarGrupo();
+            guardarGrupo(txtNombreGrupo.getText());
         }
     }//GEN-LAST:event_txtNombreGrupoKeyReleased
 
     private void btnLimpiarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarListaActionPerformed
-        grupos = new ArrayList<>();
-        gruposAleatorio = new ArrayList<>();
-        listarGrupos(grupos);
-        
-        contador = 1;
+        limpiarLista();
     }//GEN-LAST:event_btnLimpiarListaActionPerformed
 
     private void listaGraficaMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listaGraficaMouseReleased
@@ -214,6 +230,23 @@ public class JRandom extends javax.swing.JFrame {
             this.btnGenerarOrdenActionPerformed(null);
         }
     }//GEN-LAST:event_listaGraficaMouseReleased
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        JFileChooser chooser = new JFileChooser();
+        if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+            try {
+                File ar = chooser.getSelectedFile();
+                
+                Scanner scan = new Scanner(ar);
+                
+                while(scan.hasNext()){
+                    guardarGrupo(scan.nextLine());
+                }
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(JRandom.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     /**
     * @param args the command line arguments
@@ -240,6 +273,9 @@ public class JRandom extends javax.swing.JFrame {
     private javax.swing.JButton btnGenerarOrden;
     private javax.swing.JButton btnLimpiarLista;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JList listaGrafica;
     private javax.swing.JTextField txtNombreGrupo;
@@ -285,11 +321,8 @@ public class JRandom extends javax.swing.JFrame {
     /*Método para gruardar un grupo en la lista. Esta hecho como
      método porque lo llamo desde el evento key enter y desde el botón
      agregar*/
-    private void guardarGrupo() {
+    private void guardarGrupo(String nombre) {
         Grupo nuevo;
-        String nombre;
-
-        nombre = txtNombreGrupo.getText();
 
         nuevo = new Grupo(contador, nombre);
 
@@ -327,7 +360,6 @@ public class JRandom extends javax.swing.JFrame {
            /*Cantidad de grupos*/
            int cantidadDeGrupos = grupos.size();
 
-
            /*ciclo para recorrer todos los grupos*/
            while(cont < cantidadDeGrupos){
                do{
@@ -342,7 +374,6 @@ public class JRandom extends javax.swing.JFrame {
                /*En este punto, se ha generado un numero que no esta
                 en la lista, por ende, debo rescatar a ese grupo*/
                Grupo grupo = getGrupo(numeroAleatorio);
-
 
                /*y luego lo agrtego a la otra lista. La lista de
                 grupos aleatorios*/
@@ -361,6 +392,14 @@ public class JRandom extends javax.swing.JFrame {
         }catch(Exception e){
             System.out.println("Exception: "+e.getMessage());
         }
+    }
+
+    private void limpiarLista() {
+        grupos = new ArrayList<>();
+        gruposAleatorio = new ArrayList<>();
+        listarGrupos(grupos);
+        
+        contador = 1;
     }
 
 }
